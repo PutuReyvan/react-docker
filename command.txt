@@ -1,2 +1,2 @@
-docker -t react-docker .
-docker run -p 5173:5173 -v "$(pwd):/app" -v /app/node_modules react-docker 
+docker build -t react-docker ./react-app
+docker run -p 5173:5173 -v "$(pwd)/react-app:/app" -v /app/node_modules react-docker 
