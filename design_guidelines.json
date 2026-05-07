@@ -1,0 +1,116 @@
+{
+  "theme": "Light",
+  "archetype": "1 (Organic & Earthy)",
+  "emotional_tone": "Grounded, premium, and calm. This is a finance app that avoids the cold, clinical feel of standard SaaS. It feels like an expensive, physical ledger.",
+  "typography": {
+    "fonts": {
+      "headings": "Cabinet Grotesk, ui-sans-serif, system-ui, sans-serif",
+      "body": "Satoshi, ui-sans-serif, system-ui, sans-serif",
+      "mono": "JetBrains Mono, ui-monospace, monospace"
+    },
+    "rules": {
+      "headings": "Tracking tight, uppercase labels with wide tracking, stark contrast.",
+      "body": "Leading relaxed, highly legible for data."
+    },
+    "scale": {
+      "h1": "text-4xl sm:text-5xl tracking-tight font-medium",
+      "h2": "text-2xl sm:text-3xl tracking-tight font-medium",
+      "h3": "text-xl font-medium",
+      "h4": "text-lg font-medium",
+      "label": "text-xs tracking-[0.2em] uppercase font-semibold text-secondary",
+      "body": "text-base",
+      "small": "text-sm"
+    }
+  },
+  "colors": {
+    "background": {
+      "page": "#F5F4F0",
+      "surface": "#FFFFFF",
+      "surface_alt": "#EFEBE5"
+    },
+    "text": {
+      "primary": "#1A201C",
+      "secondary": "#5C665F",
+      "muted": "#8A948D"
+    },
+    "border": {
+      "default": "#DEDBD4",
+      "focus": "#1A201C"
+    },
+    "accents": {
+      "primary": "#3E5745",
+      "primary_hover": "#2B3D30",
+      "success": {
+        "bg": "#E5EBE6",
+        "text": "#2C4533"
+      },
+      "warning": {
+        "bg": "#F5EADC",
+        "text": "#6B5024"
+      },
+      "danger": {
+        "bg": "#F5DADA",
+        "text": "#732A2A"
+      }
+    }
+  },
+  "layout": {
+    "strategy": "The Control Room Grid (Dense but clear)",
+    "spacing": "Generous spacing philosophy. Use p-6, p-8 for containers. Massive gaps between sections (gap-12).",
+    "borders": "Grid Borders: Expose the skeleton. Use 1px sharp borders border-border/40 instead of floating cards.",
+    "radius": "rounded-none or max rounded-sm (2px). Sharp edges emphasize precision."
+  },
+  "surfaces": {
+    "cards": "Flat background, 1px subtle border, no shadow. Hover: slight lift (-translate-y-1) and subtle shadow.",
+    "header": "Solid background with a hard bottom border. No glassmorphism.",
+    "badges": "Sharp, rectangular or very subtle rounded-sm. Tinted backgrounds with high-contrast text."
+  },
+  "motion": {
+    "hover": "Transition transform 0.2s ease, border-color 0.2s ease.",
+    "entrance": "Staggered fade-in and slide-up (translate-y-4) for dashboard cards and table rows."
+  },
+  "media": {
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1758613654360-45f1ff78c0cf?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MDZ8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBwb3J0cmFpdCUyMG5ldXRyYWwlMjBiYWNrZ3JvdW5kfGVufDB8fHx8MTc3ODA1ODcyNXww&ixlib=rb-4.1.0&q=85",
+        "category": "user_avatar",
+        "description": "User profile picture for header"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1770058443069-e384cd001e9b?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MDZ8MHwxfHNlYXJjaHwyfHxwcm9mZXNzaW9uYWwlMjBwb3J0cmFpdCUyMG5ldXRyYWwlMjBiYWNrZ3JvdW5kfGVufDB8fHx8MTc3ODA1ODcyNXww&ixlib=rb-4.1.0&q=85",
+        "category": "client_avatar",
+        "description": "Avatar for recent invoices list"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1755540735819-107733f0be49?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMzN8MHwxfHNlYXJjaHwyfHxzdWJ0bGUlMjB3YXJtJTIwcGFwZXIlMjB0ZXh0dXJlJTIwYmFja2dyb3VuZHxlbnwwfHx8fDE3NzgxMzY5NjF8MA&ixlib=rb-4.1.0&q=85",
+        "category": "texture_background",
+        "description": "Subtle warm paper texture for an optional header background layer or empty states. (Use with very low opacity, like 5-10%)"
+      }
+    ],
+    "icons": {
+      "library": "@phosphor-icons/react",
+      "instruction": "Use duotone or regular weight. Phosphor adds a highly refined, premium tech feel."
+    }
+  },
+  "components": {
+    "StatCards": "Rectangular, sharp edges. Use a label size (text-xs uppercase tracking-widest) for the title, and a huge highly tracking-tight number for the value. No background color, just a 1px border. On hover, darken border.",
+    "RecentInvoices": "Grid or list. Remove default card shadows. Use subtle dividers between rows.",
+    "OutstandingBalance": "Highlight this with the primary accent background (#3E5745) and white text to create visual tension and focal point. Or use the subtle paper texture behind it.",
+    "Table": "Minimalist header, 1px bottom border on rows. High row padding (py-4).",
+    "StatusBadges": "Don't use generic rounded-full pills. Use small rectangular tags (rounded-sm) with strong earthy colors (terracotta for overdue, sage for paid, sand for pending).",
+    "Navigation": "Flat, text-based, wide spacing. Active state uses a bold underline or text color change, not a generic gray blob."
+  },
+  "testing": {
+    "data_testids": "All interactive and key informational elements MUST include a data-testid attribute (e.g. data-testid='kpi-total-revenue', data-testid='invoice-status-badge')."
+  },
+  "instructions_to_main_agent": [
+    "Install `@phosphor-icons/react` for icons via yarn add @phosphor-icons/react.",
+    "Include font links in index.html for Cabinet Grotesk and Satoshi. Alternatively, map them to a clean sans-serif stack in Tailwind config if CDN not used.",
+    "Remove all drop shadows from cards and panels. Rely on 1px borders (border-collapse style) and spacing to create structure.",
+    "For the outstanding balance card, use the dark green primary color with off-white text to make it the hero element of the dashboard.",
+    "Convert status badges from bright generic tailwind colors (red-500, green-500) to the earthy hex values provided in the colors section.",
+    "Apply `data-testid` to all vital UI components as per critical rules.",
+    "Ensure the .js files (not .tsx) are correctly modified. Use JS syntax and preserve existing components structure.",
+    "Implement the 'Control Room Grid' by stripping out excessive card aesthetics, enforcing sharp borders (rounded-none or max rounded-sm), and utilizing generous padding."
+  ]
+}
