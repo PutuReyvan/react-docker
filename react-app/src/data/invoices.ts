@@ -1,0 +1,88 @@
+import type { Invoice } from '../types/invoice'
+
+export const mockInvoices: Invoice[] = [
+    {
+        id: 1,
+        client: 'Acme Manufacturing',
+        amount: 5400,
+        status: 'paid',
+        dueDate: '2026-04-18',
+    },
+    {
+        id: 2,
+        client: 'Northwind Logistics',
+        amount: 12750,
+        status: 'pending',
+        dueDate: '2026-05-06',
+    },
+    {
+        id: 3,
+        client: 'Summit Retail Group',
+        amount: 3200,
+        status: 'overdue',
+        dueDate: '2026-04-05',
+    },
+    {
+        id: 4,
+        client: 'BlueRiver Energy',
+        amount: 8900,
+        status: 'paid',
+        dueDate: '2026-03-28',
+    },
+    {
+        id: 5,
+        client: 'Atlas Construction',
+        amount: 22100,
+        status: 'pending',
+        dueDate: '2026-05-20',
+    },
+    {
+        id: 6,
+        client: 'Crescent Health',
+        amount: 6100,
+        status: 'paid',
+        dueDate: '2026-04-11',
+    },
+    {
+        id: 7,
+        client: 'Horizon Media',
+        amount: 4100,
+        status: 'overdue',
+        dueDate: '2026-04-02',
+    },
+    {
+        id: 8,
+        client: 'Apex Software Labs',
+        amount: 9800,
+        status: 'pending',
+        dueDate: '2026-05-12',
+    },
+    {
+        id: 9,
+        client: 'Metro Facilities',
+        amount: 2750,
+        status: 'paid',
+        dueDate: '2026-03-30',
+    },
+    {
+        id: 10,
+        client: 'Evergreen Finance',
+        amount: 15400,
+        status: 'pending',
+        dueDate: '2026-05-25',
+    },
+    {
+        id: 11,
+        client: 'Silverline Consulting',
+        amount: 3600,
+        status: 'paid',
+        dueDate: '2026-04-22',
+    },
+    {
+        id: 12,
+        client: 'Beacon Aviation',
+        amount: 7200,
+        status: 'overdue',
+        dueDate: '2026-04-01',
+    },
+]
