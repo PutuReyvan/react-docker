@@ -1,0 +1,14 @@
+
+services:
+  react-app:
+  # di translate dari command,txt: docker build -t react-docker ./react-app
+    build: ./react-app
+    container_name: react-docker
+  # di translate dari command,txt docker run -p 5173:5173 -v "$(pwd)/react-app:/app" -v /app/
+    ports: 
+     - "5173:5173"
+    volumes:
+      - ./react-app:/app
+      - /app/node_modules
+    stdin_open: true
+    tty: true
