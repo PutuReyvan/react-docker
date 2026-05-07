@@ -31,3 +31,12 @@ yarn.lock
 # ─── Supervisor symlinks (machine-specific, point into react-app/) ────────────
 frontend
 backend
+-e 
+# Environment and credential files
+.env
+.env.*
+*.env
+credentials.json
+*.pem
+*.key
+.credentials
