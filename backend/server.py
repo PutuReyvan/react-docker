@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="Invoice Management API")
@@ -36,7 +36,7 @@ def get_invoice(invoice_id: int):
     for invoice in INVOICES:
         if invoice["id"] == invoice_id:
             return invoice
-    return {"error": "Not found"}
+    raise HTTPException(status_code=404, detail="Invoice not found")
 
 
 @app.get("/api/health")
