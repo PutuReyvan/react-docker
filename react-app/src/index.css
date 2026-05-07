@@ -2,16 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
-
 @layer base {
   html,
   body,
   #root {
-    @apply bg-slate-50 text-slate-900 antialiased;
+    @apply bg-page text-primary antialiased;
   }
 
   body {
-    font-family: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+    font-family: 'Satoshi', ui-sans-serif, system-ui, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5 {
+    font-family: 'Cabinet Grotesk', ui-sans-serif, system-ui, sans-serif;
   }
 }
+

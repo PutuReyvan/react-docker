@@ -1,10 +1,9 @@
 import type { InvoiceStatus } from '../../types/invoice'
-import { Badge } from '../ui/badge'
 
 const statusStyles: Record<InvoiceStatus, string> = {
-    paid: 'border-emerald-200 bg-emerald-50 text-emerald-700',
-    pending: 'border-amber-200 bg-amber-50 text-amber-700',
-    overdue: 'border-rose-200 bg-rose-50 text-rose-700',
+    paid: 'bg-success-bg text-success-text',
+    pending: 'bg-warning-bg text-warning-text',
+    overdue: 'bg-danger-bg text-danger-text',
 }
 
 const statusLabels: Record<InvoiceStatus, string> = {
@@ -18,7 +17,15 @@ type InvoiceStatusBadgeProps = {
 }
 
 function InvoiceStatusBadge({ status }: InvoiceStatusBadgeProps) {
-    return <Badge className={statusStyles[status]}>{statusLabels[status]}</Badge>
+    return (
+        <span
+            data-testid="invoice-status-badge"
+            className={`inline-flex items-center rounded-sm px-2 py-0.5 text-xs font-semibold uppercase tracking-wide ${statusStyles[status]}`}
+        >
+            {statusLabels[status]}
+        </span>
+    )
 }
 
 export default InvoiceStatusBadge
+

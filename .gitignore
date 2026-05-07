@@ -1,16 +1,33 @@
-# OS generated files
+# ─── OS ───────────────────────────────────────────────────────────────────────
 .DS_Store
+.DS_Store?
 Thumbs.db
+._*
 
-# IDE
+# ─── Editor ───────────────────────────────────────────────────────────────────
 .vscode/
 .idea/
--e 
-# Environment and credential files
+.gitconfig
+
+# ─── Environment & credentials ────────────────────────────────────────────────
 .env
 .env.*
 *.env
 credentials.json
 *.pem
 *.key
-.credentials
+
+# ─── Emergent platform internals (not part of the project) ────────────────────
+.emergent/
+memory/
+test_reports/
+tests/
+scripts/
+design_guidelines.json
+test_result.md
+.pytest_cache/
+yarn.lock
+
+# ─── Supervisor symlinks (machine-specific, point into react-app/) ────────────
+frontend
+backend
