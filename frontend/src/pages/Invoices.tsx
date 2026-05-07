@@ -1,57 +1,42 @@
-import { useEffect, useMemo, useState } from 'react'
 import { MagnifyingGlass } from '@phosphor-icons/react'
 import InvoiceTable from '../components/invoices/InvoiceTable'
 import PageHeader from '../components/PageHeader'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
-import { mockInvoices } from '../data/invoices'
-import { fetchInvoices } from '../services/invoices'
+import { useInvoices } from '../hooks/useInvoices'
+import { useInvoiceFilters } from '../hooks/useInvoiceFilters'
 import type { Invoice } from '../types/invoice'
 
+type InvoicesContentProps = {
+    error: string | null
+    isLoading: boolean
+    invoices: Invoice[]
+    filteredInvoices: Invoice[]
+}
+
+function InvoicesContent({ error, isLoading, invoices, filteredInvoices }: InvoicesContentProps) {
+    if (error && invoices.length === 0) {
+        return <p className="text-sm text-danger-text">{error}</p>
+    }
+    if (isLoading && invoices.length === 0) {
+        return <p className="text-sm text-muted">Loading invoices...</p>
+    }
+    if (filteredInvoices.length === 0) {
+        return <p className="text-sm text-muted">No invoices match your filters.</p>
+    }
+    return <InvoiceTable invoices={filteredInvoices} />
+}
+
 function Invoices() {
-    const [invoices, setInvoices] = useState<Invoice[]>(mockInvoices)
-    const [isLoading, setIsLoading] = useState(true)
-    const [error, setError] = useState<string | null>(null)
-    const [searchValue, setSearchValue] = useState('')
-    const [statusFilter, setStatusFilter] = useState('all')
+    const { invoices, isLoading, error } = useInvoices()
+    const { searchValue, setSearchValue, statusFilter, setStatusFilter, filteredInvoices } =
+        useInvoiceFilters(invoices)
 
-    useEffect(() => {
-        let isMounted = true
-        const loadInvoices = async () => {
-            try {
-                const data = await fetchInvoices()
-                if (isMounted) setInvoices(data)
-            } catch {
-                if (isMounted) setError('Unable to load invoices right now.')
-            } finally {
-                if (isMounted) setIsLoading(false)
-            }
-        }
-        loadInvoices()
-        return () => { isMounted = false }
-    }, [])
-
-    const filteredInvoices = useMemo(() => {
-        const q = searchValue.trim().toLowerCase()
-        return invoices.filter((inv) => {
-            const matchesQuery =
-                q.length === 0 ||
-                inv.client.toLowerCase().includes(q) ||
-                `${inv.id}`.includes(q)
-            const matchesStatus = statusFilter === 'all' || inv.status === statusFilter
-            return matchesQuery && matchesStatus
-        })
-    }, [invoices, searchValue, statusFilter])
-
-    const totalInvoices = invoices.length
     const paidCount = invoices.filter((inv) => inv.status === 'paid').length
     const overdueCount = invoices.filter((inv) => inv.status === 'overdue').length
 
     return (
         <section className="space-y-10" data-testid="invoices-page">
-            <PageHeader
-                title="Invoices"
-                subtitle="Invoice list and status tracking."
-            />
+            <PageHeader title="Invoices" subtitle="Invoice list and status tracking." />
             <Card>
                 <CardHeader>
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -61,7 +46,7 @@ function Invoices() {
                                 Track due dates, payment status, and outstanding amounts.
                             </CardDescription>
                             <div className="flex flex-wrap gap-4 text-xs text-muted">
-                                <span data-testid="invoice-total-count">{totalInvoices} total</span>
+                                <span data-testid="invoice-total-count">{invoices.length} total</span>
                                 <span data-testid="invoice-paid-count">{paidCount} paid</span>
                                 <span data-testid="invoice-overdue-count">{overdueCount} overdue</span>
                             </div>
@@ -106,15 +91,12 @@ function Invoices() {
                     </div>
                 </CardHeader>
                 <CardContent>
-                    {error && invoices.length === 0 ? (
-                        <p className="text-sm text-danger-text">{error}</p>
-                    ) : isLoading && invoices.length === 0 ? (
-                        <p className="text-sm text-muted">Loading invoices...</p>
-                    ) : filteredInvoices.length === 0 ? (
-                        <p className="text-sm text-muted">No invoices match your filters.</p>
-                    ) : (
-                        <InvoiceTable invoices={filteredInvoices} />
-                    )}
+                    <InvoicesContent
+                        error={error}
+                        isLoading={isLoading}
+                        invoices={invoices}
+                        filteredInvoices={filteredInvoices}
+                    />
                 </CardContent>
             </Card>
         </section>
@@ -122,4 +104,3 @@ function Invoices() {
 }
 
 export default Invoices
-

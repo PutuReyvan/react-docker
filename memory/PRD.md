@@ -31,7 +31,7 @@ Two pages: Dashboard (KPI cards + recent invoices + outstanding balance) and Inv
 
 ## What's Been Implemented (2026-05-07)
 - Cloned repo from GitHub, set up in Emergent environment
-- Created FastAPI backend with all 12 invoice endpoints
+- Created FastAPI backend with all 12 invoice endpoints (proper 404 for missing IDs)
 - Added `start` script to package.json for Vite on port 3000
 - Set `allowedHosts: true` in vite.config.ts
 - Full design overhaul:
@@ -45,6 +45,13 @@ Two pages: Dashboard (KPI cards + recent invoices + outstanding balance) and Inv
   - Active nav state with chip highlight
   - data-testid attributes throughout
   - All stat cards with Phosphor icons
+
+- Code quality refactor (code review findings applied):
+  - Extracted `useInvoices` custom hook — shared data-fetching, clean useEffect
+  - Extracted `useInvoiceFilters` custom hook — pure `filterInvoices` utility + useMemo
+  - Dashboard: replaced nested ternary with `RecentInvoicesContent` sub-component (135→~110 lines, Dashboard fn ~45 lines)
+  - Invoices: replaced nested ternary with `InvoicesContent` sub-component, complexity 14→~6
+  - Removed duplicate state/effect declarations across pages (DRY)
 
 ## Test Results (iteration_1)
 - Backend: 100% pass (7/7 tests)
