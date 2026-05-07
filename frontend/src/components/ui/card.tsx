@@ -2,16 +2,14 @@ import type { HTMLAttributes } from 'react'
 import { cn } from '../../lib/utils'
 
 type CardProps = HTMLAttributes<HTMLDivElement>
-
 type CardTextProps = HTMLAttributes<HTMLParagraphElement>
-
 type CardTitleProps = HTMLAttributes<HTMLHeadingElement>
 
 export function Card({ className, ...props }: CardProps) {
     return (
         <div
             className={cn(
-                'rounded-xl border border-slate-200 bg-white shadow-sm',
+                'rounded-sm border border-border bg-surface',
                 className,
             )}
             {...props}
@@ -26,7 +24,7 @@ export function CardHeader({ className, ...props }: CardProps) {
 export function CardTitle({ className, ...props }: CardTitleProps) {
     return (
         <h3
-            className={cn('text-base font-semibold text-slate-900', className)}
+            className={cn('font-heading text-base font-semibold text-primary', className)}
             {...props}
         />
     )
@@ -34,7 +32,7 @@ export function CardTitle({ className, ...props }: CardTitleProps) {
 
 export function CardDescription({ className, ...props }: CardTextProps) {
     return (
-        <p className={cn('text-sm text-slate-500', className)} {...props} />
+        <p className={cn('text-sm text-secondary', className)} {...props} />
     )
 }
 

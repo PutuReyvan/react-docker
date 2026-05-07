@@ -2,13 +2,9 @@ import type { HTMLAttributes } from 'react'
 import { cn } from '../../lib/utils'
 
 type TableProps = HTMLAttributes<HTMLTableElement>
-
 type TableSectionProps = HTMLAttributes<HTMLTableSectionElement>
-
 type TableRowProps = HTMLAttributes<HTMLTableRowElement>
-
 type TableCellProps = HTMLAttributes<HTMLTableCellElement>
-
 type TableCaptionProps = HTMLAttributes<HTMLTableCaptionElement>
 
 export function Table({ className, ...props }: TableProps) {
@@ -20,7 +16,7 @@ export function Table({ className, ...props }: TableProps) {
 }
 
 export function TableHeader({ className, ...props }: TableSectionProps) {
-    return <thead className={cn('bg-slate-50', className)} {...props} />
+    return <thead className={cn('border-b border-border bg-surface-alt', className)} {...props} />
 }
 
 export function TableBody({ className, ...props }: TableSectionProps) {
@@ -31,7 +27,7 @@ export function TableRow({ className, ...props }: TableRowProps) {
     return (
         <tr
             className={cn(
-                'border-b border-slate-200 transition-colors hover:bg-slate-50',
+                'border-b border-border transition-colors hover:bg-surface-alt',
                 className,
             )}
             {...props}
@@ -43,7 +39,7 @@ export function TableHead({ className, ...props }: TableCellProps) {
     return (
         <th
             className={cn(
-                'h-11 px-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500',
+                'h-10 px-4 text-left text-xs font-semibold uppercase tracking-[0.12em] text-muted',
                 className,
             )}
             {...props}
@@ -54,7 +50,7 @@ export function TableHead({ className, ...props }: TableCellProps) {
 export function TableCell({ className, ...props }: TableCellProps) {
     return (
         <td
-            className={cn('px-4 py-3 align-middle text-slate-900', className)}
+            className={cn('px-4 py-4 align-middle text-primary', className)}
             {...props}
         />
     )
@@ -62,6 +58,6 @@ export function TableCell({ className, ...props }: TableCellProps) {
 
 export function TableCaption({ className, ...props }: TableCaptionProps) {
     return (
-        <caption className={cn('mt-4 text-sm text-slate-500', className)} {...props} />
+        <caption className={cn('mt-4 text-sm text-muted', className)} {...props} />
     )
 }

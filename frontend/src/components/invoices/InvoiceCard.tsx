@@ -1,6 +1,5 @@
 import type { Invoice } from '../../types/invoice'
 import { formatCurrency, formatDate } from '../../lib/formatters'
-import { Card, CardContent } from '../ui/card'
 import InvoiceStatusBadge from './InvoiceStatusBadge'
 
 type InvoiceCardProps = {
@@ -9,30 +8,30 @@ type InvoiceCardProps = {
 
 function InvoiceCard({ invoice }: InvoiceCardProps) {
     return (
-        <Card className="h-full">
-            <CardContent className="space-y-4">
-                <div className="flex items-start justify-between gap-4">
-                    <div>
-                        <p className="text-sm font-semibold text-slate-900">
-                            {invoice.client}
-                        </p>
-                        <p className="text-xs text-slate-500">Invoice #{invoice.id}</p>
-                    </div>
-                    <div className="pt-1">
-                        <InvoiceStatusBadge status={invoice.status} />
-                    </div>
-                </div>
-                <div className="flex items-end justify-between">
-                    <p className="text-lg font-semibold text-slate-900">
-                        {formatCurrency(invoice.amount)}
+        <div
+            data-testid="invoice-card"
+            className="h-full border border-border bg-surface p-4 rounded-sm hover:-translate-y-0.5 hover:shadow-sm transition-all duration-200"
+        >
+            <div className="flex items-start justify-between gap-4">
+                <div>
+                    <p className="text-sm font-semibold text-primary">
+                        {invoice.client}
                     </p>
-                    <p className="text-xs text-slate-500">
-                        Due {formatDate(invoice.dueDate)}
-                    </p>
+                    <p className="mt-0.5 text-xs text-muted">Invoice #{invoice.id}</p>
                 </div>
-            </CardContent>
-        </Card>
+                <InvoiceStatusBadge status={invoice.status} />
+            </div>
+            <div className="mt-4 flex items-end justify-between">
+                <p className="font-heading text-lg font-medium tracking-tight text-primary">
+                    {formatCurrency(invoice.amount)}
+                </p>
+                <p className="text-xs text-muted">
+                    Due {formatDate(invoice.dueDate)}
+                </p>
+            </div>
+        </div>
     )
 }
 
 export default InvoiceCard
+

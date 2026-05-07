@@ -1,29 +1,36 @@
 import { NavLink, Outlet } from 'react-router-dom'
+import { SquaresFour, Receipt } from '@phosphor-icons/react'
 
 type NavLinkState = { isActive: boolean }
 
 const navLinkClass = ({ isActive }: NavLinkState) =>
     [
-        'text-sm font-medium transition-colors',
-        isActive ? 'text-blue-600' : 'text-slate-500 hover:text-blue-700',
+        'flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-sm transition-all duration-150',
+        isActive
+            ? 'bg-surface-alt text-accent'
+            : 'text-secondary hover:text-primary hover:bg-surface-alt',
     ].join(' ')
 
 function AppLayout() {
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-900">
-            <header className="border-b border-slate-200 bg-white">
-                <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4">
+        <div className="min-h-screen bg-page font-body text-primary">
+            <header className="border-b border-border bg-surface">
+                <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
                     <div>
-                        <p className="text-xs uppercase tracking-[0.2em] text-slate-500">
-                            Invoice Management
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+                            Finance Ops
                         </p>
-                        <h1 className="text-lg font-semibold text-slate-900">Finance Operations</h1>
+                        <h1 className="font-heading text-lg font-semibold text-primary">
+                            Invoice Management
+                        </h1>
                     </div>
-                    <nav className="flex items-center gap-6">
-                        <NavLink to="/" end className={navLinkClass}>
+                    <nav className="flex items-center gap-1" data-testid="main-nav">
+                        <NavLink to="/" end className={navLinkClass} data-testid="nav-dashboard">
+                            <SquaresFour size={16} weight="bold" />
                             Dashboard
                         </NavLink>
-                        <NavLink to="/invoices" className={navLinkClass}>
+                        <NavLink to="/invoices" className={navLinkClass} data-testid="nav-invoices">
+                            <Receipt size={16} weight="bold" />
                             Invoices
                         </NavLink>
                     </nav>
@@ -37,3 +44,4 @@ function AppLayout() {
 }
 
 export default AppLayout
+

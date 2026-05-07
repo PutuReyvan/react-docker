@@ -16,7 +16,7 @@ type InvoiceTableProps = {
 
 function InvoiceTable({ invoices }: InvoiceTableProps) {
     return (
-        <Table>
+        <Table data-testid="invoice-table">
             <TableHeader>
                 <TableRow>
                     <TableHead>Invoice ID</TableHead>
@@ -28,18 +28,20 @@ function InvoiceTable({ invoices }: InvoiceTableProps) {
             </TableHeader>
             <TableBody>
                 {invoices.map((invoice) => (
-                    <TableRow key={invoice.id}>
-                        <TableCell className="text-slate-500">#{invoice.id}</TableCell>
-                        <TableCell className="font-medium text-slate-900">
+                    <TableRow key={invoice.id} data-testid="invoice-table-row">
+                        <TableCell className="font-mono text-xs text-muted">
+                            #{invoice.id}
+                        </TableCell>
+                        <TableCell className="font-medium text-primary">
                             {invoice.client}
                         </TableCell>
                         <TableCell className="hidden md:table-cell">
                             <InvoiceStatusBadge status={invoice.status} />
                         </TableCell>
-                        <TableCell className="hidden lg:table-cell text-slate-500">
+                        <TableCell className="hidden lg:table-cell text-secondary">
                             {formatDate(invoice.dueDate)}
                         </TableCell>
-                        <TableCell className="text-right font-semibold text-slate-900">
+                        <TableCell className="text-right font-heading font-medium text-primary">
                             {formatCurrency(invoice.amount)}
                         </TableCell>
                     </TableRow>
@@ -50,3 +52,4 @@ function InvoiceTable({ invoices }: InvoiceTableProps) {
 }
 
 export default InvoiceTable
+
