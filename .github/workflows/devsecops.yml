@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - master
 
 permissions:
   actions: read
@@ -234,7 +235,7 @@ jobs:
       - secret-scanning-trufflehog
       - container-scan
       - sbom
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
     outputs:
       image-tag: ${{ github.sha }}
 
@@ -269,7 +270,7 @@ jobs:
     name: Optional Deploy - GCP Staging
     runs-on: ubuntu-latest
     needs: publish-image
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.ENABLE_STAGING_DEPLOY == 'true'
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && vars.ENABLE_STAGING_DEPLOY == 'true'
 
     steps:
       - name: Deploy over SSH
