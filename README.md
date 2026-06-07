@@ -1,48 +1,113 @@
-# React Docker
+# Invoice Management Dashboard
 
-A containerized React (Vite + TypeScript) application using Docker and Docker Compose.
+Repository ini berisi web application **Invoice Management Dashboard** yang digunakan sebagai target implementasi pipeline DevSecOps. Aplikasi dibuat dengan React, Vite, dan TypeScript, lalu dipaketkan sebagai Docker image production menggunakan Nginx.
 
-## Prerequisites
+Dashboard menampilkan data operasional invoice seperti client/company, nominal pembayaran, status pembayaran, dan due date. Karena konteksnya adalah dashboard internal bisnis, pipeline dibuat untuk memastikan perubahan kode tetap bisa dibuild, dependency aman dari vulnerability tinggi, tidak ada secret yang ter-push, dan source code melewati pengecekan security otomatis.
 
-- [Docker](https://www.docker.com/get-started) installed on your machine
-- [Docker Compose](https://docs.docker.com/compose/install/) (included with Docker Desktop)
+## Tech Stack
 
-## Getting Started
+| Area | Tool |
+|---|---|
+| Frontend | React, Vite, TypeScript |
+| Styling | TailwindCSS |
+| Mock Backend | JSON Server |
+| Testing | Vitest |
+| Build Validation | npm, ESLint, Vite |
+| CI/CD | GitHub Actions |
+| SCA | npm audit, GitHub Dependency Review |
+| Secret Scanning | TruffleHog |
+| SAST | CodeQL |
+| Container | Docker, Nginx |
+| Container Scan | Trivy |
+| SBOM | Syft |
+| Registry | GitHub Container Registry |
+| Optional Deploy | GCP Compute Engine, Docker Compose, SSH |
 
-### Run with Docker Compose
+## Local Run
 
-```bash
-docker compose up --build
-```
+Run development server dengan mock API:
 
-The app will be available at **http://localhost:5173**.
-
-### Run without Docker
-
-```bash
+```powershell
 cd react-app
-npm install
+npm run api
 npm run dev
 ```
 
-## Project Structure
+Build dan jalankan image production:
 
-```
-react-docker/
-├── docker-compose.yml    # Docker Compose configuration
-├── react-app/
-│   ├── Dockerfile        # Docker image definition
-│   ├── src/              # React source code
-│   ├── public/           # Static assets
-│   ├── package.json      # Node.js dependencies
-│   └── vite.config.ts    # Vite configuration
-└── README.md
+```powershell
+docker build -t invoice-app:local ./react-app
+docker run --rm -p 8080:80 --name invoice-app invoice-app:local
 ```
 
-## Contributing
+Buka aplikasi:
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+```text
+http://localhost:8080
+```
+
+Cek health endpoint:
+
+```powershell
+curl http://localhost:8080/health
+```
+
+Run dengan Docker Compose:
+
+```powershell
+docker compose up --build
+```
+
+Stop Compose:
+
+```powershell
+docker compose down
+```
+
+## DevSecOps Pipeline
+
+Workflow utama ada di `.github/workflows/devsecops.yml`. Pipeline berjalan pada pull request dan push ke branch `main`.
+
+| Stage | Job Name di GitHub Actions | Fungsi |
+|---|---|---|
+| Build Validation | `Build Validation` | Menjalankan `npm ci`, lint, test, dan build untuk memastikan aplikasi invoice dashboard valid. |
+| Dependency Vulnerability Scanning | `Dependency Vulnerability Scanning` | Menjalankan `npm audit --audit-level=high` dan Dependency Review untuk mengecek package pihak ketiga. |
+| Secret Scanning | `Secret Scanning - TruffleHog` | Mendeteksi kemungkinan API key, token, atau credential yang tidak sengaja masuk repository. |
+| SAST | `SAST - CodeQL` | Menganalisis source code JavaScript/TypeScript untuk menemukan pola bug atau security issue. |
+| Docker Build | `Docker Build` | Membuat Docker image production `invoice-app` dari aplikasi React/Vite. |
+| Additional Container Scan | `Additional Container Scan - Trivy` | Scan Docker image untuk vulnerability OS/library sebagai security tambahan. |
+| Additional SBOM | `Additional SBOM - Syft` | Membuat software bill of materials untuk visibility dependency di image. |
+| CD Publish | `CD - Publish Image` | Publish image ke `ghcr.io/putureyvan/invoice-app` pada push ke `main`. |
+| Optional Deploy | `Optional Deploy - GCP Staging` | Deploy ke GCP VM jika `ENABLE_STAGING_DEPLOY=true`. |
+
+Fitur security utama yang sesuai dengan laporan:
+
+1. **Dependency Vulnerability Scanning** memakai `npm audit` dan GitHub Dependency Review.
+2. **Secret Scanning** memakai TruffleHog.
+3. **Static Application Security Testing / SAST** memakai CodeQL.
+
+Trivy dan Syft ditambahkan sebagai hardening yang masih realistis untuk project mahasiswa karena aplikasi sudah dipaketkan dalam Docker image.
+
+## Evidence untuk Reporting
+
+Screenshot yang disarankan:
+
+- Halaman GitHub Actions workflow run.
+- Job `Build Validation`.
+- Job `Dependency Vulnerability Scanning`.
+- Job `Secret Scanning - TruffleHog`.
+- Job `SAST - CodeQL`.
+- Job `Docker Build`.
+- Job `Additional Container Scan - Trivy`.
+- Job `Additional SBOM - Syft`.
+- Job `CD - Publish Image` jika push ke `main`.
+
+Jika GCP belum disiapkan, job `Optional Deploy - GCP Staging` boleh skipped karena deploy VM memang digate dengan repository variable.
+
+## Deployment
+
+Dokumentasi staging deployment ke GCP Compute Engine tersedia di `docs/deployment.md`.
+
+## Contributors
+
+- PutuReyvan - Putu Reyvan

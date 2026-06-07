@@ -1,0 +1,318 @@
+name: DevSecOps Pipeline
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  actions: read
+  contents: read
+  packages: write
+  pull-requests: read
+  security-events: write
+
+env:
+  APP_DIR: react-app
+  IMAGE_NAME: ghcr.io/putureyvan/invoice-app
+  LOCAL_IMAGE: invoice-app:${{ github.sha }}
+
+jobs:
+  build-validation:
+    name: Build Validation
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.APP_DIR }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: react-app/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm run test
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload app build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: react-app-dist
+          path: react-app/dist
+          if-no-files-found: error
+          retention-days: 7
+
+  docker-build:
+    name: Docker Build
+    runs-on: ubuntu-latest
+    needs: build-validation
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./react-app
+          load: true
+          tags: ${{ env.LOCAL_IMAGE }}
+
+      - name: Save Docker image
+        run: docker save "${LOCAL_IMAGE}" -o "${RUNNER_TEMP}/react-app-image.tar"
+
+      - name: Upload Docker image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: react-app-image
+          path: ${{ runner.temp }}/react-app-image.tar
+          if-no-files-found: error
+          retention-days: 1
+
+  sast-codeql:
+    name: SAST - CodeQL
+    runs-on: ubuntu-latest
+    needs: build-validation
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+
+      - name: Analyze
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: /language:javascript-typescript
+
+  dependency-vulnerability-scanning:
+    name: Dependency Vulnerability Scanning
+    runs-on: ubuntu-latest
+    needs: build-validation
+    defaults:
+      run:
+        working-directory: ${{ env.APP_DIR }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Dependency Review
+        if: github.event_name == 'pull_request'
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: react-app/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Audit npm dependencies
+        run: npm audit --audit-level=high
+
+  secret-scanning-trufflehog:
+    name: Secret Scanning - TruffleHog
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run TruffleHog
+        run: |
+          docker run --rm \
+            -v "${GITHUB_WORKSPACE}:/repo" \
+            ghcr.io/trufflesecurity/trufflehog:latest \
+            git file:///repo --only-verified --fail
+
+  container-scan:
+    name: Additional Container Scan - Trivy
+    runs-on: ubuntu-latest
+    needs: docker-build
+
+    steps:
+      - name: Download Docker image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: react-app-image
+          path: ${{ runner.temp }}
+
+      - name: Load Docker image
+        run: docker load -i "${RUNNER_TEMP}/react-app-image.tar"
+
+      - name: Run Trivy vulnerability scan
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: ${{ env.LOCAL_IMAGE }}
+          format: sarif
+          output: trivy-results.sarif
+          severity: HIGH,CRITICAL
+          vuln-type: os,library
+          exit-code: 0
+
+      - name: Upload Trivy SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-results.sarif
+
+      - name: Upload Trivy report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-results
+          path: trivy-results.sarif
+          if-no-files-found: warn
+          retention-days: 7
+
+  sbom:
+    name: Additional SBOM - Syft
+    runs-on: ubuntu-latest
+    needs: docker-build
+
+    steps:
+      - name: Download Docker image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: react-app-image
+          path: ${{ runner.temp }}
+
+      - name: Load Docker image
+        run: docker load -i "${RUNNER_TEMP}/react-app-image.tar"
+
+      - name: Generate SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          image: ${{ env.LOCAL_IMAGE }}
+          format: spdx-json
+          output-file: sbom.spdx.json
+
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-spdx
+          path: sbom.spdx.json
+          if-no-files-found: error
+          retention-days: 30
+
+  publish-image:
+    name: CD - Publish Image
+    runs-on: ubuntu-latest
+    needs:
+      - docker-build
+      - sast-codeql
+      - dependency-vulnerability-scanning
+      - secret-scanning-trufflehog
+      - container-scan
+      - sbom
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    outputs:
+      image-tag: ${{ github.sha }}
+
+    steps:
+      - name: Download Docker image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: react-app-image
+          path: ${{ runner.temp }}
+
+      - name: Load Docker image
+        run: docker load -i "${RUNNER_TEMP}/react-app-image.tar"
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tag Docker image
+        run: |
+          docker tag "${LOCAL_IMAGE}" "${IMAGE_NAME}:${GITHUB_SHA}"
+          docker tag "${LOCAL_IMAGE}" "${IMAGE_NAME}:latest"
+
+      - name: Push Docker image
+        run: |
+          docker push "${IMAGE_NAME}:${GITHUB_SHA}"
+          docker push "${IMAGE_NAME}:latest"
+
+  deploy-staging:
+    name: Optional Deploy - GCP Staging
+    runs-on: ubuntu-latest
+    needs: publish-image
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.ENABLE_STAGING_DEPLOY == 'true'
+
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.2.0
+        env:
+          APP_IMAGE_TAG: ${{ github.sha }}
+          STAGING_APP_URL: ${{ secrets.STAGING_APP_URL }}
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USER }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          port: ${{ secrets.STAGING_PORT }}
+          envs: APP_IMAGE_TAG,STAGING_APP_URL
+          script: |
+            set -eu
+
+            APP_DIR="/opt/invoice-app"
+            ENV_FILE="${APP_DIR}/.env"
+            PREVIOUS_IMAGE_TAG=""
+
+            cd "${APP_DIR}"
+
+            if [ -f "${ENV_FILE}" ]; then
+              PREVIOUS_IMAGE_TAG="$(grep '^APP_IMAGE_TAG=' "${ENV_FILE}" | cut -d '=' -f 2- || true)"
+            fi
+
+            printf 'APP_IMAGE_TAG=%s\n' "${APP_IMAGE_TAG}" > "${ENV_FILE}"
+
+            docker compose pull
+            docker compose up -d
+
+            if ! curl --fail --retry 10 --retry-delay 5 --retry-connrefused "${STAGING_APP_URL}"; then
+              echo "Health check failed. Rolling back to previous image tag: ${PREVIOUS_IMAGE_TAG}"
+
+              if [ -n "${PREVIOUS_IMAGE_TAG}" ]; then
+                printf 'APP_IMAGE_TAG=%s\n' "${PREVIOUS_IMAGE_TAG}" > "${ENV_FILE}"
+                docker compose pull
+                docker compose up -d
+              else
+                echo "No previous image tag found; rollback skipped."
+              fi
+
+              exit 1
+            fi
+
+            docker image prune -f

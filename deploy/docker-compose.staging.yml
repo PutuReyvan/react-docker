@@ -1,11 +1,10 @@
-
 services:
   react-app:
-    build: ./react-app
-    image: invoice-app:local
+    image: ghcr.io/putureyvan/invoice-app:${APP_IMAGE_TAG:?APP_IMAGE_TAG is required}
     container_name: invoice-app
+    restart: unless-stopped
     ports:
-      - "8080:80"
+      - "80:80"
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "-", "http://localhost/health"]
       interval: 30s

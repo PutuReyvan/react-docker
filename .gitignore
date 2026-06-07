@@ -1,51 +1,53 @@
-# ─── OS ───────────────────────────────────────────────────────────────────────
+# OS files
 .DS_Store
 .DS_Store?
 Thumbs.db
 ._*
 
-# ─── Editor ───────────────────────────────────────────────────────────────────
+# Editor and machine-local files
 .vscode/
 .idea/
 .gitconfig
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
-# ─── Environment & credentials ────────────────────────────────────────────────
+# Environment and credentials
 .env
 .env.*
 *.env
+!.env.example
 credentials.json
 *.pem
 *.key
+.credentials
 
-# ─── Emergent platform internals (not part of the project) ────────────────────
+# Dependencies and build output
+node_modules/
+dist/
+dist-ssr/
+build/
+*.tsbuildinfo
+
+# Logs and caches
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pytest_cache/
+coverage/
+
+# Non-project generated/scaffold artifacts
 .emergent/
 memory/
 test_reports/
-tests/
-scripts/
 design_guidelines.json
 test_result.md
-.pytest_cache/
-yarn.lock
-
-# ─── Supervisor symlinks (machine-specific, point into react-app/) ────────────
+tests/
+scripts/
 frontend
 backend
--e 
-# Environment and credential files
-.env
-.env.*
-*.env
-credentials.json
-*.pem
-*.key
-.credentials
--e 
-# Environment and credential files
-.env
-.env.*
-*.env
-credentials.json
-*.pem
-*.key
-.credentials

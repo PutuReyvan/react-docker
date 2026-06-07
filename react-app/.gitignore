@@ -1,20 +1,21 @@
-# ─── Dependencies ────────────────────────────────────────────────────────────
+# Dependencies
 node_modules/
 .pnp
 .pnp.js
 
-# ─── Build output ─────────────────────────────────────────────────────────────
+# Build output
 dist/
 dist-ssr/
 build/
+*.tsbuildinfo
 
-# ─── Environment ─────────────────────────────────────────────────────────────
+# Environment
 .env
 .env.*
 !.env.example
-backend/.env
+*.local
 
-# ─── Logs ─────────────────────────────────────────────────────────────────────
+# Logs
 logs/
 *.log
 npm-debug.log*
@@ -22,32 +23,8 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# ─── TypeScript / Vite ────────────────────────────────────────────────────────
-*.local
-*.tsbuildinfo
-
-# ─── Python backend ───────────────────────────────────────────────────────────
-__pycache__/
-*.py[cod]
-*$py.class
-*.egg-info/
-.eggs/
-.venv/
-venv/
-.python-version
-
-# ─── OS ───────────────────────────────────────────────────────────────────────
+# OS and editor files
 .DS_Store
-.DS_Store?
 Thumbs.db
-._*
-
-# ─── Editor ───────────────────────────────────────────────────────────────────
-.vscode/*
-!.vscode/extensions.json
+.vscode/
 .idea/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
