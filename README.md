@@ -88,22 +88,6 @@ Fitur security utama yang sesuai dengan laporan:
 
 Trivy dan Syft ditambahkan sebagai hardening yang masih realistis untuk project mahasiswa karena aplikasi sudah dipaketkan dalam Docker image.
 
-## Evidence untuk Reporting
-
-Screenshot yang disarankan:
-
-- Halaman GitHub Actions workflow run.
-- Job `Build Validation`.
-- Job `Dependency Vulnerability Scanning`.
-- Job `Secret Scanning - TruffleHog`.
-- Job `SAST - CodeQL`.
-- Job `Docker Build`.
-- Job `Additional Container Scan - Trivy`.
-- Job `Additional SBOM - Syft`.
-- Job `CD - Publish Image` jika push ke `main`.
-
-Jika GCP belum disiapkan, job `Optional Deploy - GCP Staging` boleh skipped karena deploy VM memang digate dengan repository variable.
-
 ## Deployment
 
 Dokumentasi staging deployment ke GCP Compute Engine tersedia di `docs/deployment.md`.
