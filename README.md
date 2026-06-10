@@ -91,7 +91,3 @@ Trivy dan Syft ditambahkan sebagai hardening yang masih realistis untuk project 
 ## Deployment
 
 Dokumentasi staging deployment ke GCP Compute Engine tersedia di `docs/deployment.md`.
-
-## Contributors
-
-- PutuReyvan - Putu Reyvan
