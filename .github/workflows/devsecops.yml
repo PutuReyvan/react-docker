@@ -274,42 +274,50 @@ jobs:
   deploy-aws-staging:
     name: CD - Deploy to AWS EC2 Staging
     runs-on: ubuntu-latest
-    needs:
-      - publish-image
-      - backend-publish-image
+    needs: [publish-image, backend-publish-image]
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && vars.ENABLE_STAGING_DEPLOY == 'true'
+    
     steps:
-      - name: Deploy over SSH to AWS EC2
-        uses: appleboy/ssh-action@v1.2.0
+      - name: Setup SSH Agent
+        uses: webfactory/ssh-agent@v0.9.0
         with:
-          host: ${{ secrets.AWS_EC2_HOST }}
-          username: ${{ secrets.AWS_EC2_USER }}
-          key: ${{ secrets.AWS_EC2_SSH_KEY }}
-          port: ${{ secrets.AWS_EC2_PORT }}
-          envs: APP_IMAGE_TAG,AWS_APP_URL
-          script_stop: true
-          script: |
+          ssh-private-key: ${{ secrets.AWS_EC2_SSH_KEY }}
+
+      - name: Deploy and Run
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.AWS_EC2_USER }}@${{ secrets.AWS_EC2_HOST }} -p ${{ secrets.AWS_EC2_PORT }} << 'EOF'
             set -eu
             APP_DIR="/opt/invoice-app"
             ENV_FILE="${APP_DIR}/.env"
-            PREVIOUS_IMAGE_TAG=""
+            
             cd "${APP_DIR}"
+            
+            # Capture old tag
+            PREVIOUS_IMAGE_TAG=""
             if [ -f "${ENV_FILE}" ]; then
               PREVIOUS_IMAGE_TAG="$(grep '^APP_IMAGE_TAG=' "${ENV_FILE}" | cut -d '=' -f 2- || true)"
             fi
-            printf 'APP_IMAGE_TAG=%s\n' "${APP_IMAGE_TAG}" > "${ENV_FILE}"
+            
+            # Update .env
+            echo "APP_IMAGE_TAG=${{ github.sha }}" > "${ENV_FILE}"
+            
+            # Deploy
             docker compose pull
             docker compose up -d
-            if ! curl --fail --retry 10 --retry-delay 5 --retry-connrefused "${AWS_APP_URL}"; then
-              echo "Health check failed. Rolling back to ${PREVIOUS_IMAGE_TAG}"
+            
+            # Health check
+            if ! curl --fail --retry 10 --retry-delay 5 --retry-connrefused "${{ secrets.AWS_APP_URL }}"; then
+              echo "Health check failed. Rolling back..."
               if [ -n "${PREVIOUS_IMAGE_TAG}" ]; then
-                printf 'APP_IMAGE_TAG=%s\n' "${PREVIOUS_IMAGE_TAG}" > "${ENV_FILE}"
+                echo "APP_IMAGE_TAG=${PREVIOUS_IMAGE_TAG}" > "${ENV_FILE}"
                 docker compose pull
                 docker compose up -d
               fi
               exit 1
             fi
+            
             docker image prune -f
+          EOF
             
   # Backend jobs copied from backend-devsecops.yml for single-file workflow mode.
   backend-validation:
