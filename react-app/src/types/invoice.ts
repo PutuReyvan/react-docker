@@ -7,3 +7,7 @@ export type Invoice = {
     status: InvoiceStatus
     dueDate: string
 }
+
+export type CreateInvoiceInput = Omit<Invoice, 'id'>
+
+export type UpdateInvoiceInput = Partial<CreateInvoiceInput>
