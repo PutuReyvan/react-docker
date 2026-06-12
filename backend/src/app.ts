@@ -9,6 +9,8 @@ interface CreateAppOptions {
   corsOrigin?: string
 }
 
+const DEFAULT_CORS_ORIGINS = ['http://localhost:5173', 'http://localhost:8080']
+
 export function createApp(options: CreateAppOptions) {
   const app = express()
 
@@ -35,9 +37,11 @@ export function createApp(options: CreateAppOptions) {
   return app
 }
 
-function parseCorsOrigin(value: string | undefined): boolean | string[] {
-  if (!value) return true
-  return value.split(',').map((origin) => origin.trim()).filter(Boolean)
+function parseCorsOrigin(value: string | undefined): string[] {
+  if (!value) return DEFAULT_CORS_ORIGINS
+
+  const origins = value.split(',').map((origin) => origin.trim()).filter(Boolean)
+  return origins.length > 0 ? origins : DEFAULT_CORS_ORIGINS
 }
 
 const errorHandler: ErrorRequestHandler = (error, _request, response, next) => {
