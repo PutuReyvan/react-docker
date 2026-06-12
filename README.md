@@ -148,3 +148,6 @@ Dokumentasi backend CRUD dan MongoDB persistence tersedia di [Backend Architectu
 - [![GitHub Username](https://img.shields.io/badge/GitHub-@farhanelta-red?logo=github)](https://github.com/farhanelta)  - Farhan Elta
 - [![GitHub Username](https://img.shields.io/badge/GitHub-@livenintendoswitch-blue?logo=github)](https://github.com/livenintendoswitch) - Leonard Ferdinand Rianto Suwanta
 - [![GitHub Username](https://img.shields.io/badge/GitHub-@Wannnkd-purple?logo=github)](https://github.com/Wannnkd) - Juan Kairupan
+
+# app can be found here:
+https://sna.ambasing.shop
