@@ -1,13 +1,58 @@
 
 services:
+  mongodb:
+    image: mongo:8
+    container_name: invoice-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  invoice-api:
+    build: ./backend
+    image: invoice-api:local
+    container_name: invoice-api
+    restart: unless-stopped
+    environment:
+      MONGODB_URI: mongodb://mongodb:27017
+      MONGODB_DB_NAME: invoice_app
+      PORT: 3001
+      CORS_ORIGIN: http://localhost:8080
+    ports:
+      - "3001:3001"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1:3001/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
   react-app:
     build: ./react-app
     image: invoice-app:local
     container_name: invoice-app
+    restart: unless-stopped
     ports:
       - "8080:80"
+    depends_on:
+      invoice-api:
+        condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost/health"]
+      test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1/health"]
       interval: 30s
       timeout: 5s
       retries: 3
+      start_period: 10s
+
+volumes:
+  mongodb-data:
