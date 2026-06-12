@@ -32,7 +32,7 @@ export class MongoInvoiceRepository implements InvoiceRepository {
   async create(input: CreateInvoiceInput): Promise<Invoice> {
     const latestInvoice = await this.collection.find({}, { projection: { id: 1 } }).sort({ id: -1 }).limit(1).next()
     const invoice = { id: (latestInvoice?.id ?? 0) + 1, ...input }
-    await this.collection.insertOne(invoice)
+    await this.collection.insertOne({ ...invoice })
     return invoice
   }
 
