@@ -138,9 +138,13 @@ Workflow backend tambahan ada di `.github/workflows/backend-devsecops.yml`. Work
 
 ## Deployment
 
-Dokumentasi staging deployment frontend ke GCP Compute Engine tersedia di `docs/deployment.md`. Dokumentasi backend CRUD dan MongoDB persistence tersedia di `docs/backend-handoff.md`.
+Dokumentasi staging deployment frontend ke AWS EC2 tersedia di [Staging Deployment Guide](docs/deployment.md). 
+
+Dokumentasi backend CRUD dan MongoDB persistence tersedia di [Backend Architecture & Handoff](docs/backend-handoff.md)
 
 ## Contributors
 
-- PutuReyvan - Putu Reyvan
-- farhanelta - Farhan Elta
+- [![GitHub](https://img.shields.io/badge/GitHub-@PutuReyvan-green?logo=github)](https://github.com/PutuReyvan)- Putu Reyvan
+- [![GitHub Username](https://img.shields.io/badge/GitHub-@farhanelta-red?logo=github)](https://github.com/farhanelta)  - Farhan Elta
+- [![GitHub Username](https://img.shields.io/badge/GitHub-@livenintendoswitch-blue?logo=github)](https://github.com/livenintendoswitch) - Leonard Ferdinand Rianto Suwanta
+- [![GitHub Username](https://img.shields.io/badge/GitHub-@Wannnkd-purple?logo=github)](https://github.com/Wannnkd) - Juan Kairupan

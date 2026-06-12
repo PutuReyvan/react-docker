@@ -1,6 +1,6 @@
 # Staging Deployment
 
-This project can deploy the Invoice Management Dashboard to a GCP Compute Engine VM. The VM runs the production Docker image with Docker Compose.
+This project can deploy the Invoice Management Dashboard to an AWS EC2 VM. The VM runs the production Docker image with Docker Compose.
 
 Deployment is optional for the assignment evidence. The GitHub Actions workflow always validates, scans, builds, and publishes the Docker image on `main`; the VM deploy job only runs when `ENABLE_STAGING_DEPLOY=true`.
 
@@ -32,7 +32,7 @@ Save it as:
 
 ## VM Requirements
 
-- Ubuntu LTS on GCP Compute Engine.
+- Ubuntu LTS on AWS EC2.
 - Docker Engine and Docker Compose plugin installed.
 - Firewall allows:
   - `tcp:22` for SSH
@@ -66,7 +66,7 @@ Set these repository secrets:
 
 | Secret | Purpose |
 |---|---|
-| `STAGING_HOST` | GCP VM external IP or DNS |
+| `STAGING_HOST` | AWS VM external IP or DNS |
 | `STAGING_USER` | SSH user on the VM |
 | `STAGING_SSH_KEY` | Private key for GitHub Actions SSH access |
 | `STAGING_PORT` | SSH port, usually `22` |
