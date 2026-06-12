@@ -142,3 +142,4 @@ Dokumentasi staging deployment frontend ke GCP Compute Engine tersedia di `docs/
 ## Contributors
 
 - PutuReyvan - Putu Reyvan
+- farhanelta - Farhan Elta
