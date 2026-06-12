@@ -1,8 +1,8 @@
 # Invoice Management Dashboard
 
-Repository ini berisi web application **Invoice Management Dashboard** yang digunakan sebagai target implementasi pipeline DevSecOps. Aplikasi dibuat dengan React, Vite, dan TypeScript, lalu dipaketkan sebagai Docker image production menggunakan Nginx.
+Repository ini berisi web application **Invoice Management Dashboard** yang digunakan sebagai target implementasi pipeline DevSecOps. Frontend dibuat dengan React, Vite, dan TypeScript, backend dibuat dengan Express dan MongoDB, lalu keduanya bisa dijalankan sebagai Docker service.
 
-Dashboard menampilkan data operasional invoice seperti client/company, nominal pembayaran, status pembayaran, dan due date. Karena konteksnya adalah dashboard internal bisnis, pipeline dibuat untuk memastikan perubahan kode tetap bisa dibuild, dependency aman dari vulnerability tinggi, tidak ada secret yang ter-push, dan source code melewati pengecekan security otomatis.
+Dashboard menampilkan data operasional invoice seperti client/company, nominal pembayaran, status pembayaran, dan due date. Aplikasi sekarang diarahkan sebagai CRUD invoice app: pengguna dapat menambah, mengubah, dan menghapus data invoice melalui API, dengan data tersimpan di MongoDB. Karena konteksnya adalah dashboard internal bisnis, pipeline dibuat untuk memastikan perubahan kode tetap bisa dibuild, dependency aman dari vulnerability tinggi, tidak ada secret yang ter-push, dan source code melewati pengecekan security otomatis.
 
 ## Tech Stack
 
@@ -10,9 +10,10 @@ Dashboard menampilkan data operasional invoice seperti client/company, nominal p
 |---|---|
 | Frontend | React, Vite, TypeScript |
 | Styling | TailwindCSS |
-| Mock Backend | JSON Server |
-| Testing | Vitest |
-| Build Validation | npm, ESLint, Vite |
+| Backend API | Node.js, Express, TypeScript |
+| Database | MongoDB |
+| Testing | Vitest, Supertest |
+| Build Validation | npm, ESLint, TypeScript, Vite |
 | CI/CD | GitHub Actions |
 | SCA | npm audit, GitHub Dependency Review |
 | Secret Scanning | TruffleHog |
@@ -21,23 +22,15 @@ Dashboard menampilkan data operasional invoice seperti client/company, nominal p
 | Container Scan | Trivy |
 | SBOM | Syft |
 | Registry | GitHub Container Registry |
-| Optional Deploy | GCP Compute Engine, Docker Compose, SSH |
+| Frontend Optional Deploy | GCP Compute Engine, Docker Compose, SSH |
+| Backend Delivery | Docker image publish to GHCR |
 
 ## Local Run
 
-Run development server dengan mock API:
+Run full-stack lokal dengan frontend, backend, dan MongoDB:
 
 ```powershell
-cd react-app
-npm run api
-npm run dev
-```
-
-Build dan jalankan image production:
-
-```powershell
-docker build -t invoice-app:local ./react-app
-docker run --rm -p 8080:80 --name invoice-app invoice-app:local
+docker compose up --build
 ```
 
 Buka aplikasi:
@@ -50,13 +43,11 @@ Cek health endpoint:
 
 ```powershell
 curl http://localhost:8080/health
+curl http://localhost:3001/health
+curl http://localhost:3001/api/invoices
 ```
 
-Run dengan Docker Compose:
-
-```powershell
-docker compose up --build
-```
+Setelah stack aktif, operasi add/update/delete invoice dilakukan lewat frontend di `http://localhost:8080` atau langsung ke endpoint `http://localhost:3001/api/invoices`. Data invoice dipersist ke volume MongoDB Compose `mongodb-data`.
 
 Stop Compose:
 
@@ -64,9 +55,35 @@ Stop Compose:
 docker compose down
 ```
 
+Run frontend saja untuk development:
+
+```powershell
+cd react-app
+npm run dev
+```
+
+Run backend saja untuk development membutuhkan MongoDB dan env dari `backend/.env.example`:
+
+```powershell
+cd backend
+npm install
+npm run dev
+```
+
+Build dan jalankan frontend image production saja:
+
+```powershell
+docker build -t invoice-app:local ./react-app
+docker run --rm -p 8080:80 --name invoice-app invoice-app:local
+```
+
+```text
+http://localhost:8080
+```
+
 ## DevSecOps Pipeline
 
-Workflow utama ada di `.github/workflows/devsecops.yml`. Pipeline berjalan pada pull request dan push ke branch `main`.
+Workflow frontend utama ada di `.github/workflows/devsecops.yml`. Pipeline berjalan pada pull request dan push ke branch `main` atau `master`.
 
 | Stage | Job Name di GitHub Actions | Fungsi |
 |---|---|---|
@@ -88,6 +105,41 @@ Fitur security utama yang sesuai dengan laporan:
 
 Trivy dan Syft ditambahkan sebagai hardening yang masih realistis untuk project mahasiswa karena aplikasi sudah dipaketkan dalam Docker image.
 
+## Evidence untuk Reporting
+
+Screenshot yang disarankan:
+
+- Halaman GitHub Actions workflow run.
+- Job `Build Validation`.
+- Job `Dependency Vulnerability Scanning`.
+- Job `Secret Scanning - TruffleHog`.
+- Job `SAST - CodeQL`.
+- Job `Docker Build`.
+- Job `Additional Container Scan - Trivy`.
+- Job `Additional SBOM - Syft`.
+- Job `CD - Publish Image` jika push ke `main`.
+
+Jika GCP belum disiapkan, job `Optional Deploy - GCP Staging` boleh skipped karena deploy VM memang digate dengan repository variable.
+
+Workflow backend tambahan ada di `.github/workflows/backend-devsecops.yml`. Workflow ini sengaja dipisah sebagai referensi agar backend jobs bisa digabung ke workflow utama tanpa mengubah pipeline frontend yang sudah stabil.
+
+| Stage | Job Name di GitHub Actions | Fungsi |
+|---|---|---|
+| Backend Validation | `Backend Validation` | Menjalankan `npm ci`, lint, unit test, dan TypeScript build untuk Express CRUD API. |
+| MongoDB Integration Test | `MongoDB Integration Tests` | Menjalankan test API add/update/delete invoice memakai MongoDB service di GitHub Actions. |
+| Backend SAST | `Backend SAST - CodeQL` | Menganalisis source code backend TypeScript. |
+| Backend SCA | `Backend Dependency Vulnerability Scanning` | Menjalankan Dependency Review dan `npm audit --audit-level=high`. |
+| Backend Secret Scan | `Backend Secret Scanning - TruffleHog` | Mendeteksi credential/API key yang tidak sengaja masuk repo. |
+| Backend Docker Build | `Backend Docker Build` | Build image backend `invoice-api`. |
+| Backend Container Scan | `Backend Container Scan - Trivy` | Scan vulnerability pada image backend. |
+| Backend SBOM | `Backend SBOM - Syft` | Generate SBOM backend image. |
+| Backend Publish | `Backend CD - Publish Image to GHCR` | Publish image backend ke GHCR pada push ke `main`/`master`. |
+
 ## Deployment
 
-Dokumentasi staging deployment ke GCP Compute Engine tersedia di `docs/deployment.md`.
+Dokumentasi staging deployment frontend ke GCP Compute Engine tersedia di `docs/deployment.md`. Dokumentasi backend CRUD dan MongoDB persistence tersedia di `docs/backend-handoff.md`.
+
+## Contributors
+
+- PutuReyvan - Putu Reyvan
+- farhanelta - Farhan Elta

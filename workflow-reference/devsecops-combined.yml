@@ -1,4 +1,4 @@
-name: DevSecOps Pipeline
+﻿name: DevSecOps Pipeline
 
 on:
   pull_request:
@@ -274,9 +274,7 @@ jobs:
   deploy-staging:
     name: Optional Deploy - GCP Staging
     runs-on: ubuntu-latest
-    needs:
-      - publish-image
-      - backend-publish-image
+    needs: publish-image
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && vars.ENABLE_STAGING_DEPLOY == 'true'
 
     steps:
