@@ -277,59 +277,38 @@ jobs:
     needs:
       - publish-image
       - backend-publish-image
-    # di push kalo main atau master
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && vars.ENABLE_STAGING_DEPLOY == 'true'
-
     steps:
       - name: Deploy over SSH to AWS EC2
         uses: appleboy/ssh-action@v1.2.0
-        env:
-          APP_IMAGE_TAG: ${{ github.sha }}
-          AWS_APP_URL: ${{ secrets.AWS_APP_URL }}
         with:
           host: ${{ secrets.AWS_EC2_HOST }}
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_SSH_KEY }}
           port: ${{ secrets.AWS_EC2_PORT }}
           envs: APP_IMAGE_TAG,AWS_APP_URL
+          script_stop: true
           script: |
             set -eu
-
-            # Setup variables
             APP_DIR="/opt/invoice-app"
             ENV_FILE="${APP_DIR}/.env"
             PREVIOUS_IMAGE_TAG=""
-
             cd "${APP_DIR}"
-
-            # Capture the old tag for rollback purposes
             if [ -f "${ENV_FILE}" ]; then
               PREVIOUS_IMAGE_TAG="$(grep '^APP_IMAGE_TAG=' "${ENV_FILE}" | cut -d '=' -f 2- || true)"
             fi
-
-            # Update the .env file with the new GitHub SHA
             printf 'APP_IMAGE_TAG=%s\n' "${APP_IMAGE_TAG}" > "${ENV_FILE}"
-
-            # Pull the new images from GHCR
             docker compose pull
             docker compose up -d
-
-            # Ping the AWS Application Load Balancer or EC2 Public IP to verify health
             if ! curl --fail --retry 10 --retry-delay 5 --retry-connrefused "${AWS_APP_URL}"; then
-              echo "Health check failed. Rolling back to previous image tag: ${PREVIOUS_IMAGE_TAG}"
-
+              echo "Health check failed. Rolling back to ${PREVIOUS_IMAGE_TAG}"
               if [ -n "${PREVIOUS_IMAGE_TAG}" ]; then
                 printf 'APP_IMAGE_TAG=%s\n' "${PREVIOUS_IMAGE_TAG}" > "${ENV_FILE}"
                 docker compose pull
                 docker compose up -d
-              else
-                echo "No previous image tag found; rollback skipped."
               fi
-
               exit 1
             fi
-
-            # Cleanup old dangling images to save EBS volume space
             docker image prune -f
             
   # Backend jobs copied from backend-devsecops.yml for single-file workflow mode.
