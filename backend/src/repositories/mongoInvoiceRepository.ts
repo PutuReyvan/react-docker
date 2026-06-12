@@ -17,7 +17,7 @@ export class MongoInvoiceRepository implements InvoiceRepository {
 
     const invoiceCount = await this.collection.countDocuments()
     if (invoiceCount === 0) {
-      await this.collection.insertMany(seedInvoices)
+      await this.collection.insertMany(seedInvoices.map((invoice) => ({ ...invoice })))
     }
   }
 
