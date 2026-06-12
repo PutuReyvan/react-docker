@@ -110,6 +110,7 @@ Trivy dan Syft ditambahkan sebagai hardening yang masih realistis untuk project 
 Screenshot yang disarankan:
 
 - Halaman GitHub Actions workflow run.
+- Halaman pull request checks untuk membuktikan trigger `pull_request` berjalan.
 - Job `Build Validation`.
 - Job `Dependency Vulnerability Scanning`.
 - Job `Secret Scanning - TruffleHog`.
