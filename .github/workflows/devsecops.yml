@@ -277,7 +277,7 @@ jobs:
     needs:
       - publish-image
       - backend-publish-image
-    # main atau master kaya di on push
+    # di push kalo main atau master
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && vars.ENABLE_STAGING_DEPLOY == 'true'
 
     steps:
